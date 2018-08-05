@@ -42,6 +42,11 @@ class Quest
         $this->experience = new Experience();
     }
 
+    public function updateTitle(Title $title): void
+    {
+        $this->title = $title;
+    }
+
     public function updateDescription(Description $description): void
     {
         $this->description = $description;
@@ -64,6 +69,8 @@ class Quest
 
     public function experienceForTheQuest(): Experience
     {
+        $this->calcExperienceForTheQuest();
+
         return $this->experience;
     }
 
@@ -77,7 +84,7 @@ class Quest
      */
     public function receiveRewards(): array
     {
-        if (!$this->isComplete) {
+        if (!$this->isComplete()) {
             throw new IncompleteQuestException();
         }
 
@@ -89,11 +96,11 @@ class Quest
      */
     public function receiveExperience(): Experience
     {
-        if (!$this->isComplete) {
+        if (!$this->isComplete()) {
             throw new IncompleteQuestException();
         }
 
-        $this->calcTheExperienceForTheQuest();
+        $this->calcExperienceForTheQuest();
 
         return $this->experience;
     }
@@ -113,16 +120,16 @@ class Quest
      */
     public function completeTheQuest(): void
     {
-        if ($this->isComplete) {
+        if ($this->isComplete()) {
             throw new UnexpectedCallException("The quest is already complete");
         }
 
         $this->isComplete = true;
     }
 
-    private function calcTheExperienceForTheQuest(): void
+    private function calcExperienceForTheQuest(): void
     {
-        switch ($this->difficulty->getDifficulty()) {
+        switch ($this->difficulty()->getDifficulty()) {
             case "easy":
                 $this->experience = $this->experience->increaseExperience(20);
                 break;

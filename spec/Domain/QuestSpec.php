@@ -71,6 +71,11 @@ class QuestSpec extends ObjectBehavior
             ->shouldReturn([$reward]);
     }
 
+    function it_may_have_updated_title(): void
+    {
+        $this->updateTitle(new Title("Homework"));
+    }
+
     function it_gives_a_reward_for_completing_it(): void
     {
         $reward = new Reward('A cookie');
