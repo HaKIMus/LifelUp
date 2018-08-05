@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace spec\App\Domain\Quest;
 
 use App\Domain\Quest\Reward;
