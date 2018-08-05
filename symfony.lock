@@ -41,6 +41,9 @@
     "psr/simple-cache": {
         "version": "1.0.x-dev"
     },
+    "ramsey/uuid": {
+        "version": "4.x-dev"
+    },
     "sebastian/comparator": {
         "version": "3.0-dev"
     },
@@ -128,6 +131,9 @@
     "symfony/polyfill-mbstring": {
         "version": "1.8-dev"
     },
+    "symfony/polyfill-php72": {
+        "version": "1.8-dev"
+    },
     "symfony/process": {
         "version": "4.2-dev"
     },
@@ -139,6 +145,9 @@
             "version": "4.2",
             "ref": "4e8335922e9744e9fb1ea43fea12847e6ba78c2a"
         }
+    },
+    "symfony/var-dumper": {
+        "version": "4.2-dev"
     },
     "symfony/web-server-bundle": {
         "version": "3.3",
