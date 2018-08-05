@@ -12,7 +12,7 @@ class Experience
     /**
      * @throws NegativeExperienceException
      */
-    public function __construct(int $exp)
+    public function __construct(int $exp = 0)
     {
         if ($exp < 0) {
             throw new NegativeExperienceException();

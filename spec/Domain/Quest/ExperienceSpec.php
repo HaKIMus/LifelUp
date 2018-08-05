@@ -10,16 +10,16 @@ use Prophecy\Argument;
 
 class ExperienceSpec extends ObjectBehavior
 {
-    function let(): void
-    {
-        $this->beConstructedWith(0);
-    }
-
     function it_is_initializable(): void
     {
         $this->shouldHaveType(Experience::class);
     }
 
+    function it_is_0_by_default(): void
+    {
+        $this->getExperience()
+            ->shouldReturn(0);
+    }
     function it_is_immutable(): void
     {
         $this->increaseExperience(30)

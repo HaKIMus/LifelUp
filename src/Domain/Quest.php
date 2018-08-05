@@ -39,7 +39,7 @@ class Quest
         $this->rewards = [];
         $this->difficulty = new Difficulty();
         $this->isComplete = false;
-        $this->experience = new Experience(0);
+        $this->experience = new Experience();
     }
 
     public function updateDescription(Description $description): void
