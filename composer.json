@@ -12,21 +12,30 @@
         "prooph/common": "^4.0",
         "prooph/event-sourcing": "^5.0",
         "prooph/event-store-bus-bridge": "^3.2@dev",
+        "prooph/event-store-http-middleware": "dev-master",
         "prooph/event-store-symfony-bundle": "^1.0@dev",
+        "prooph/pdo-event-store": "^1.7@dev",
+        "prooph/service-bus": "*",
         "prooph/service-bus-symfony-bundle": "^1.0@dev",
         "ramsey/uuid": "^3.0",
         "sensio/framework-extra-bundle": "^5.2@dev",
         "symfony/apache-pack": "dev-master",
+        "symfony/asset": "^4.2",
         "symfony/console": "^4.2",
-        "symfony/flex": "^1.0",
+        "symfony/flex": "^1.0@dev",
         "symfony/force-lowest": "=4.2",
         "symfony/framework-bundle": "^4.2",
+        "symfony/monolog-bundle": "^3.0@dev",
+        "symfony/orm-pack": "dev-master",
         "symfony/twig-bundle": "^4.2",
         "symfony/yaml": "^4.2"
     },
     "require-dev": {
+        "doctrine/doctrine-fixtures-bundle": "^3.0@dev",
         "phpspec/phpspec": "^5.0",
         "symfony/dotenv": "^4.2",
+        "symfony/maker-bundle": "^1.0@dev",
+        "symfony/profiler-pack": "dev-master",
         "symfony/var-dumper": "^4.2",
         "symfony/web-server-bundle": "^4.2"
     },
@@ -66,7 +75,7 @@
     },
     "extra": {
         "symfony": {
-            "allow-contrib": false
+            "allow-contrib": "true"
         }
     },
     "license": "MIT License",

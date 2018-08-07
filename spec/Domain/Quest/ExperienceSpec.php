@@ -12,16 +12,16 @@ use Prophecy\Argument;
 
 class ExperienceSpec extends ObjectBehavior
 {
+    function let(): void
+    {
+        $this->beConstructedThrough("fromInt", [0]);
+    }
+
     function it_is_initializable(): void
     {
         $this->shouldHaveType(Experience::class);
     }
 
-    function it_is_0_by_default(): void
-    {
-        $this->getExperience()
-            ->shouldReturn(0);
-    }
     function it_is_immutable(): void
     {
         $this->increaseExperience(30)
@@ -35,13 +35,13 @@ class ExperienceSpec extends ObjectBehavior
 
     function it_cant_be_increased_by_negative_number(): void
     {
-        $this->shouldThrow(InvalidArgumentException::class)
+        $this->shouldThrow(NegativeExperienceException::class)
             ->during("increaseExperience", [-30]);
     }
 
     function it_cant_be_negative(): void
     {
         $this->shouldThrow(NegativeExperienceException::class)
-            ->during("__construct", [-20]);
+            ->during("fromInt", [-20]);
     }
 }

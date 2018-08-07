@@ -1,0 +1,8 @@
+prooph_service_bus:
+  command_buses:
+    acme_command_bus: ~
+
+services:
+  Acme\Command\RegisterUserHandler:
+    tags:
+    - { name: 'prooph_service_bus.acme_command_bus.route_target' }

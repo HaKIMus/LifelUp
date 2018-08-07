@@ -74,22 +74,23 @@ class Quest extends AggregateRoot
      */
     private $completedAt;
 
-    public static function startNewQuest(Title $title): self
-    {
-        Assertion::notEmpty($title->getTitle());
-
+    public static function startNewQuest(
+        Title $title,
+        Description $description,
+        Difficulty $difficulty,
+        array $rewards
+    ): self {
         $uuid = Uuid::uuid4();
 
         $instance = new self();
 
         $instance->recordThat(QuestWasStarted::occur($uuid->toString(), [
             'title'  => $title,
-            'description' => new Description(),
-            'started_at' => new StartedAt('now'),
+            'description' => $description,
+            'difficulty' => $difficulty,
+            'rewards' => $rewards,
             'is_complete' => false,
-            'experience' => new Experience(0),
-            'difficulty' => new Difficulty(),
-            'rewards' => new Reward()
+            'started_at' => new StartedAt('now'),
         ]));
 
         return $instance;
@@ -138,9 +139,9 @@ class Quest extends AggregateRoot
 
     public function updateTitle(Title $updatedTitle): void
     {
-        Assertion::notEmpty($updatedTitle->getTitle());
+        Assertion::notEmpty($updatedTitle->toString());
 
-        if (!$updatedTitle->getTitle() !== $this->title) {
+        if (!$updatedTitle->toString() !== $this->title) {
             $this->recordThat(TitleWasUpdated::occur(
                 $this->uuid->toString(),
                 [
@@ -253,19 +254,19 @@ class Quest extends AggregateRoot
     {
         switch ($this->difficulty()->getDifficulty()) {
             case "easy":
-                return $this->experience->increaseExperience(20);
+                return Experience::fromInt(20);
                 break;
             case "medium":
-                return $this->experience->increaseExperience(50);
+                return Experience::fromInt(50);
                 break;
             case "hard":
-                return $this->experience->increaseExperience(150);
+                return Experience::fromInt(150);
                 break;
             case "very hard":
-                return $this->experience->increaseExperience(300);
+                return Experience::fromInt(300);
                 break;
             case "impossible":
-                return $this->experience->increaseExperience(500);
+                return Experience::fromInt(500);
                 break;
         }
     }
@@ -325,13 +326,22 @@ class Quest extends AggregateRoot
     private function whenQuestWasStarted(QuestWasStarted $event): void
     {
         $this->uuid = Uuid::fromString($event->aggregateId());
+
         $this->title = $event->title();
+
         $this->description = $event->description();
+
         $this->isComplete = $event->isComplete();
-        $this->experience = $event->experience();
+
         $this->difficulty = $event->difficulty();
-        $this->rewards[$event->rewards()->getReward()] = $event->rewards();
+
+        foreach ($event->rewards() as $reward) {
+            $this->rewards[$reward->getReward()] = $reward;
+        }
+
         $this->startedAt = $event->startedAt();
+
+        $this->experience = $this->calcExperienceForTheQuest();
     }
 
     private function whenQuestWasCompleted(QuestWasCompleted $event): void
@@ -344,7 +354,7 @@ class Quest extends AggregateRoot
     {
         unset($this->rewards);
 
-        $reward = new Reward();
+        $reward = Reward::fromString();
         $this->rewards[$reward->getReward()] = $reward;
     }
 
@@ -352,7 +362,7 @@ class Quest extends AggregateRoot
     {
         unset($this->experience);
 
-        $experience = new Experience(0);
+        $experience = Experience::fromInt(0);
         $this->experience = $experience;
     }
 }

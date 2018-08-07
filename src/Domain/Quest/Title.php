@@ -4,13 +4,22 @@ declare(strict_types=1);
 
 namespace App\Domain\Quest;
 
+use Assert\Assertion;
+
 class Title
 {
     private $title;
 
-    public function __construct(string $title)
+    private function __construct(string $title)
     {
         $this->title = $title;
+    }
+
+    public static function fromString(string $title): self
+    {
+        Assertion::notEmpty($title);
+
+        return new self($title);
     }
 
     public function updateTitle(string $title): self
@@ -20,7 +29,7 @@ class Title
         return $updatedTitle;
     }
 
-    public function getTitle(): string
+    public function toString(): string
     {
         return $this->title;
     }

@@ -12,7 +12,7 @@ class DescriptionSpec extends ObjectBehavior
 {
     function let(): void
     {
-        $this->beConstructedWith("Do a workout");
+        $this->beConstructedThrough("fromString", ["Do a workout"]);
     }
 
     function it_is_initializable(): void

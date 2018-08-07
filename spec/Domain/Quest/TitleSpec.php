@@ -12,7 +12,7 @@ class TitleSpec extends ObjectBehavior
 {
     function let(): void
     {
-        $this->beConstructedWith("Workout");
+        $this->beConstructedThrough("fromString", ['Workout']);
     }
 
     function it_is_initializable(): void
@@ -27,7 +27,7 @@ class TitleSpec extends ObjectBehavior
 
         $updatedTitle = $this->updateTitle("Homework");
 
-        $updatedTitle->getTitle()
+        $updatedTitle->toString()
             ->shouldReturn("Homework");
     }
 }

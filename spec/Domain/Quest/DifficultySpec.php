@@ -10,15 +10,14 @@ use Prophecy\Argument;
 
 class DifficultySpec extends ObjectBehavior
 {
+    function let(): void
+    {
+        $this->beConstructedThrough("fromInt", [2]);
+    }
+
     function it_is_initializable(): void
     {
         $this->shouldHaveType(Difficulty::class);
-    }
-
-    function it_has_medium_difficulty_by_default(): void
-    {
-        $this->getDifficulty()
-            ->shouldReturn("medium");
     }
 
     function it_is_immutable(): void

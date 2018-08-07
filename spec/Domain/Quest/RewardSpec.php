@@ -12,9 +12,7 @@ class RewardSpec extends ObjectBehavior
 {
     function let(): void
     {
-        $this->beConstructedWith(
-            "A cookie"
-        );
+        $this->beConstructedThrough("fromString", ["A cookie"]);
     }
 
     function it_is_initializable(): void

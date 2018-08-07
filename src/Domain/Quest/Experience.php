@@ -11,10 +11,15 @@ class Experience
 {
     private $exp;
 
+    public static function fromInt(int $exp): self
+    {
+        return new self($exp);
+    }
+
     /**
      * @throws NegativeExperienceException
      */
-    public function __construct(int $exp = 0)
+    private function __construct(int $exp)
     {
         if ($exp < 0) {
             throw new NegativeExperienceException();
@@ -24,12 +29,12 @@ class Experience
     }
 
     /**
-     * @throws InvalidArgumentException
+     * @throws NegativeExperienceException
      */
     public function increaseExperience(int $exp): self
     {
         if ($exp < 0) {
-            throw new InvalidArgumentException();
+            throw new NegativeExperienceException();
         }
 
         $updatedExperience = new self($this->exp += $exp);

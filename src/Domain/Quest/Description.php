@@ -4,12 +4,21 @@ declare(strict_types=1);
 
 namespace App\Domain\Quest;
 
+use Assert\Assertion;
+
 class Description
 {
     private $description;
 
-    public function __construct(string $description = null)
+    public static function fromString(string $description): self
     {
+        return new self($description);
+    }
+
+    private function __construct(string $description = null)
+    {
+        Assertion::notEmpty($description);
+
         $this->description = $description;
     }
 

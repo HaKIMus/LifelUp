@@ -9,7 +9,7 @@ use App\Domain\Exception\Quest\TryingToReceiveTwice;
 use App\Domain\Quest;
 use App\Domain\Quest\CompletedAt;
 use App\Domain\Quest\Description;
-use App\Domain\Quest\Experience;
+use App\Domain\Quest\Difficulty;
 use App\Domain\Quest\Reward;
 use App\Domain\Quest\StartedAt;
 use App\Domain\Quest\Title;
@@ -20,7 +20,10 @@ class QuestSpec extends ObjectBehavior
     function let(): void
     {
         $this->beConstructedThrough("startNewQuest", [
-            new Title('Workout')
+            Title::fromString("Workout"),
+            Description::fromString("Do a workout"),
+            Difficulty::fromInt(Difficulty::MEDIUM),
+            [Reward::fromString('Movie')]
         ]);
     }
 
@@ -59,7 +62,7 @@ class QuestSpec extends ObjectBehavior
 
     function it_may_have_a_description(): void
     {
-        $description = new Description("Do a workout!");
+        $description = Description::fromString("Do a workout!");
 
         $this->updateDescription($description);
 
@@ -75,7 +78,7 @@ class QuestSpec extends ObjectBehavior
 
     function it_may_have_an_reward(): void
     {
-        $reward = new Reward('A cookie');
+        $reward = Reward::fromString('A cookie');
 
         $this->addReward($reward);
 
@@ -85,13 +88,13 @@ class QuestSpec extends ObjectBehavior
 
     function it_may_have_updated_title(): void
     {
-        $this->updateTitle(new Title("Homework"));
+        $this->updateTitle(Title::fromString("Homework"));
 
     }
 
     function it_gives_a_reward_for_completing_it(): void
     {
-        $reward = new Reward('A cookie');
+        $reward = Reward::fromString('A cookie');
         $this->addReward($reward);
 
         $this->completeTheQuest();

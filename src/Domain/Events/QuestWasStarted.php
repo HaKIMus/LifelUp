@@ -6,7 +6,6 @@ namespace App\Domain\Events;
 
 use App\Domain\Quest\Description;
 use App\Domain\Quest\Difficulty;
-use App\Domain\Quest\Experience;
 use App\Domain\Quest\Reward;
 use App\Domain\Quest\StartedAt;
 use App\Domain\Quest\Title;
@@ -29,17 +28,15 @@ class QuestWasStarted extends AggregateChanged
         return $this->payload['is_complete'];
     }
 
-    public function experience(): Experience
-    {
-        return $this->payload['experience'];
-    }
-
     public function difficulty(): Difficulty
     {
         return $this->payload['difficulty'];
     }
 
-    public function rewards(): Reward
+    /**
+     * @return Reward[]
+     */
+    public function rewards(): array
     {
         return $this->payload['rewards'];
     }

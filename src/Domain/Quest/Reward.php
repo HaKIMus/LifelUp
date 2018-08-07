@@ -8,7 +8,12 @@ class Reward
 {
     private $reward;
 
-    public function __construct(string $reward = null)
+    public static function fromString(string $reward = null): self
+    {
+        return new self($reward);
+    }
+
+    private function __construct(string $reward = null)
     {
         $this->reward = $reward;
     }
@@ -18,13 +23,6 @@ class Reward
         $reward = new self($reward);
 
         return $reward;
-    }
-
-    public function toArray(): array
-    {
-        return [
-            'reward' => $this->reward
-        ];
     }
 
     public function getReward(): ?string

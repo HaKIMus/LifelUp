@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Quest;
 
 use App\Domain\Exception\InvalidArgumentException;
+use Assert\Assertion;
 
 class Difficulty
 {
@@ -16,8 +17,22 @@ class Difficulty
 
     private $difficulty;
 
-    public function __construct(int $difficulty = 2)
+    public static function fromInt(int $difficulty): self
     {
+        return new self($difficulty);
+    }
+
+    private function __construct(int $difficulty)
+    {
+/*        if ($difficulty !== Difficulty::EASY
+            && $difficulty !== Difficulty::MEDIUM
+            && $difficulty !== Difficulty::HARD
+            && $difficulty !== Difficulty::VERY_HARD
+            && $difficulty !== Difficulty::IMPOSSIBLE
+        ) {
+            throw new InvalidArgumentException();
+        }*/
+
         $this->difficulty = $difficulty;
     }
 
@@ -28,9 +43,6 @@ class Difficulty
         return $difficulty;
     }
 
-    /**
-     * @throws InvalidArgumentException
-     */
     public function getDifficulty(): string
     {
         switch ($this->difficulty) {
@@ -50,7 +62,5 @@ class Difficulty
                 return "impossible";
                 break;
         }
-
-        throw new InvalidArgumentException();
     }
 }
