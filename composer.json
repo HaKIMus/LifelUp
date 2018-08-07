@@ -15,11 +15,13 @@
         "prooph/event-store-symfony-bundle": "^1.0@dev",
         "prooph/service-bus-symfony-bundle": "^1.0@dev",
         "ramsey/uuid": "^3.0",
+        "sensio/framework-extra-bundle": "^5.2@dev",
         "symfony/apache-pack": "dev-master",
         "symfony/console": "^4.2",
         "symfony/flex": "^1.0",
         "symfony/force-lowest": "=4.2",
         "symfony/framework-bundle": "^4.2",
+        "symfony/twig-bundle": "^4.2",
         "symfony/yaml": "^4.2"
     },
     "require-dev": {
