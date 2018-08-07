@@ -1,4 +1,7 @@
 {
+    "beberlei/assert": {
+        "version": "v2.9.6"
+    },
     "doctrine/cache": {
         "version": "1.8.x-dev"
     },
@@ -10,6 +13,12 @@
     },
     "doctrine/instantiator": {
         "version": "1.2.x-dev"
+    },
+    "marc-mabe/php-enum": {
+        "version": "3.0-dev"
+    },
+    "paragonie/random_compat": {
+        "version": "v9.99.99"
     },
     "phpdocumentor/reflection-common": {
         "version": "1.0.1"
@@ -28,6 +37,27 @@
     },
     "phpspec/prophecy": {
         "version": "1.7.x-dev"
+    },
+    "prooph/common": {
+        "version": "v4.2.2"
+    },
+    "prooph/event-sourcing": {
+        "version": "v5.6.0"
+    },
+    "prooph/event-store": {
+        "version": "7.3-dev"
+    },
+    "prooph/event-store-bus-bridge": {
+        "version": "v3.3.0"
+    },
+    "prooph/event-store-symfony-bundle": {
+        "version": "1.0-dev"
+    },
+    "prooph/service-bus": {
+        "version": "v6.2.2"
+    },
+    "prooph/service-bus-symfony-bundle": {
+        "version": "1.0-dev"
     },
     "psr/cache": {
         "version": "1.0.x-dev"

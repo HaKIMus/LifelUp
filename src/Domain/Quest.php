@@ -4,57 +4,96 @@ declare(strict_types=1);
 
 namespace App\Domain;
 
+use App\Domain\Events\DescriptionWasUpdated;
+use App\Domain\Events\DifficultyWasUpdated;
+use App\Domain\Events\ExperienceWasReceived;
+use App\Domain\Events\QuestWasCompleted;
+use App\Domain\Events\QuestWasStarted;
+use App\Domain\Events\RewardsWereReceived;
+use App\Domain\Events\RewardWasAdded;
+use App\Domain\Events\TitleWasUpdated;
+use App\Domain\Exception\Exception;
 use App\Domain\Exception\IncompleteQuestException;
+use App\Domain\Exception\Quest\TryingToReceiveTwice;
 use App\Domain\Exception\UnexpectedCallException;
+use App\Domain\Quest\CompletedAt;
 use App\Domain\Quest\Difficulty;
 use App\Domain\Quest\Experience;
 use App\Domain\Quest\Reward;
+use App\Domain\Quest\StartedAt;
 use App\Domain\Quest\Title;
 use App\Domain\Quest\Description;
+use Assert\Assertion;
+use Prooph\EventSourcing\AggregateChanged;
+use Prooph\EventSourcing\AggregateRoot;
 use Ramsey\Uuid\Uuid;
 
-class Quest
+class Quest extends AggregateRoot
 {
+    /**
+     * @var Uuid
+     */
     private $uuid;
 
+    /**
+     * @var Title
+     */
     private $title;
 
+    /**
+     * @var Description
+     */
     private $description;
 
+    /**
+     * @var Reward[]
+     */
     private $rewards;
 
+    /**
+     * @var Difficulty
+     */
     private $difficulty;
 
+    /**
+     * @var bool
+     */
     private $isComplete;
 
+    /**
+     * @var Experience
+     */
     private $experience;
 
-    public function __construct(
-        Title $title
-    ) {
-        $this->uuid = Uuid::uuid4();
-        $this->title = $title;
+    /**
+     * @var StartedAt
+     */
+    private $startedAt;
 
-        $this->description = new Description();
-        $this->rewards = [];
-        $this->difficulty = new Difficulty();
-        $this->isComplete = false;
-        $this->experience = new Experience();
-    }
+    /**
+     * @var CompletedAt
+     */
+    private $completedAt;
 
-    public function updateTitle(Title $title): void
+    public static function startNewQuest(Title $title): self
     {
-        $this->title = $title;
-    }
+        Assertion::notEmpty($title->getTitle());
 
-    public function updateDescription(Description $description): void
-    {
-        $this->description = $description;
-    }
+        $uuid = Uuid::uuid4();
 
-    public function updateDifficulty(Difficulty $difficulty): void
-    {
-        $this->difficulty = $difficulty;
+        $instance = new self();
+
+        $instance->recordThat(QuestWasStarted::occur($uuid->toString(), [
+            'title'  => $title,
+            'description' => new Description(),
+            'started_at' => new StartedAt('now'),
+            'is_complete' => false,
+            'experience' => new Experience(0),
+            'difficulty' => new Difficulty(),
+            'rewards' => new Reward()
+        ]));
+
+        return $instance;
     }
 
     public function description(): Description
@@ -69,40 +108,14 @@ class Quest
 
     public function experienceForTheQuest(): Experience
     {
-        $this->calcExperienceForTheQuest();
+        $experience = $this->calcExperienceForTheQuest();
 
-        return $this->experience;
+        return $experience;
     }
 
-    public function addReward(Reward $reward): void
+    public function startedAt(): StartedAt
     {
-        array_push($this->rewards, $reward);
-    }
-
-    /**
-     * @throws IncompleteQuestException
-     */
-    public function receiveRewards(): array
-    {
-        if (!$this->isComplete()) {
-            throw new IncompleteQuestException();
-        }
-
-        return $this->rewards;
-    }
-
-    /**
-     * @throws IncompleteQuestException
-     */
-    public function receiveExperience(): Experience
-    {
-        if (!$this->isComplete()) {
-            throw new IncompleteQuestException();
-        }
-
-        $this->calcExperienceForTheQuest();
-
-        return $this->experience;
+        return $this->startedAt;
     }
 
     public function rewards(): array
@@ -115,36 +128,232 @@ class Quest
         return $this->isComplete;
     }
 
+    public function completedAt(): CompletedAt
+    {
+        if (!$this->isComplete()) {
+            throw new UnexpectedCallException();
+        }
+
+        return $this->completedAt;
+    }
+
+    public function updateTitle(Title $updatedTitle): void
+    {
+        Assertion::notEmpty($updatedTitle->getTitle());
+
+        if (!$updatedTitle->getTitle() !== $this->title) {
+            $this->recordThat(TitleWasUpdated::occur(
+                $this->uuid->toString(),
+                [
+                    'updated_title' => $updatedTitle,
+                    'old_title' => $this->title
+                ]
+            ));
+        }
+    }
+
+    public function updateDescription(Description $updatedDescription): void
+    {
+        if (!$updatedDescription->getDescription() !== $this->title) {
+            $this->recordThat(DescriptionWasUpdated::occur(
+                $this->uuid->toString(),
+                [
+                    'updated_description' => $updatedDescription,
+                    'old_description' => $this->description
+                ]
+            ));
+        }
+    }
+
+    public function updateDifficulty(Difficulty $updatedDifficulty): void
+    {
+        if (!$updatedDifficulty !== $this->difficulty) {
+            $this->recordThat(DifficultyWasUpdated::occur(
+                $this->uuid->toString(),
+                [
+                    'updated_difficulty' => $updatedDifficulty,
+                    'old_difficulty' => $this->difficulty
+                ]
+            ));
+        }
+    }
+
+    public function addReward(Reward $newReward): void
+    {
+        if (!array_key_exists($newReward->getReward(), $this->rewards())) {
+            $this->recordThat(RewardWasAdded::occur(
+                $this->uuid->toString(),
+                [
+                    'new_reward' => $newReward,
+                ]
+            ));
+        }
+    }
+
     /**
-     * @throws UnexpectedCallException
+     * @throws IncompleteQuestException
      */
+    public function receiveRewards(): void
+    {
+        if (!$this->isComplete()) {
+            throw new IncompleteQuestException();
+        }
+
+        $this->recordThat(RewardsWereReceived::occur(
+            $this->uuid->toString(),
+            [
+                'received_rewards' => $this->rewards(),
+            ]
+        ));
+    }
+
+    /**
+     * @throws IncompleteQuestException
+     */
+    public function receiveExperience(): void
+    {
+        if (!$this->isComplete()) {
+            throw new IncompleteQuestException();
+        }
+
+        foreach ($this->popRecordedEvents() as $event) {
+            if (ExperienceWasReceived::class === $event->messageName()) {
+                throw TryingToReceiveTwice::experience();
+            }
+        }
+
+        $this->experience = $this->calcExperienceForTheQuest();
+
+        $this->recordThat(ExperienceWasReceived::occur(
+            $this->uuid->toString(),
+            [
+                'received_experience' => $this->experience
+            ]
+        ));
+    }
+
     public function completeTheQuest(): void
     {
         if ($this->isComplete()) {
             throw new UnexpectedCallException("The quest is already complete");
         }
 
-        $this->isComplete = true;
+        if (true !== $this->isComplete) {
+            $this->recordThat(QuestWasCompleted::occur(
+                $this->uuid->toString(),
+                [
+                    'is_complete' => true,
+                    'completed_at' => new CompletedAt('now'),
+                    'old_state_is_complete' => $this->isComplete
+                ]
+            ));
+        }
     }
 
-    private function calcExperienceForTheQuest(): void
+    private function calcExperienceForTheQuest(): Experience
     {
         switch ($this->difficulty()->getDifficulty()) {
             case "easy":
-                $this->experience = $this->experience->increaseExperience(20);
+                return $this->experience->increaseExperience(20);
                 break;
             case "medium":
-                $this->experience = $this->experience->increaseExperience(50);
+                return $this->experience->increaseExperience(50);
                 break;
             case "hard":
-                $this->experience = $this->experience->increaseExperience(150);
+                return $this->experience->increaseExperience(150);
                 break;
             case "very hard":
-                $this->experience = $this->experience->increaseExperience(300);
+                return $this->experience->increaseExperience(300);
                 break;
             case "impossible":
-                $this->experience = $this->experience->increaseExperience(500);
+                return $this->experience->increaseExperience(500);
                 break;
         }
+    }
+
+    protected function aggregateId(): string
+    {
+        return $this->uuid->toString();
+    }
+
+    protected function apply(AggregateChanged $event): void
+    {
+        switch (\get_class($event)) {
+            case QuestWasStarted::class:
+                /** @var QuestWasStarted $event */
+
+                $this->whenQuestWasStarted($event);
+                break;
+            case TitleWasUpdated::class:
+                /** @var TitleWasUpdated $event */
+
+                $this->title = $event->updatedTitle();
+                break;
+            case DescriptionWasUpdated::class:
+                /** @var DescriptionWasUpdated $event */
+
+                $this->description = $event->updatedDescription();
+                break;
+            case DifficultyWasUpdated::class:
+                /** @var DifficultyWasUpdated $event */
+
+                $this->difficulty = $event->updatedDifficulty();
+                break;
+            case RewardWasAdded::class:
+                /** @var RewardWasAdded $event */
+
+                $this->rewards[$event->newReward()->getReward()] = $event->newReward();
+                break;
+            case QuestWasCompleted::class:
+                /** @var QuestWasCompleted $event */
+
+                $this->whenQuestWasCompleted($event);
+                break;
+            case RewardsWereReceived::class:
+                /** @var RewardsWereReceived @event */
+
+                $this->whenRewardsWereReceived();
+                break;
+
+            case ExperienceWasReceived::class:
+                /** @var ExperienceWasReceived @event */
+
+                $this->whenExperienceWasReceived();
+                break;
+        }
+    }
+
+    private function whenQuestWasStarted(QuestWasStarted $event): void
+    {
+        $this->uuid = Uuid::fromString($event->aggregateId());
+        $this->title = $event->title();
+        $this->description = $event->description();
+        $this->isComplete = $event->isComplete();
+        $this->experience = $event->experience();
+        $this->difficulty = $event->difficulty();
+        $this->rewards[$event->rewards()->getReward()] = $event->rewards();
+        $this->startedAt = $event->startedAt();
+    }
+
+    private function whenQuestWasCompleted(QuestWasCompleted $event): void
+    {
+        $this->isComplete = $event->isComplete();
+        $this->completedAt = $event->completedAt();
+    }
+
+    private function whenRewardsWereReceived(): void
+    {
+        unset($this->rewards);
+
+        $reward = new Reward();
+        $this->rewards[$reward->getReward()] = $reward;
+    }
+
+    private function whenExperienceWasReceived(): void
+    {
+        unset($this->experience);
+
+        $experience = new Experience(0);
+        $this->experience = $experience;
     }
 }

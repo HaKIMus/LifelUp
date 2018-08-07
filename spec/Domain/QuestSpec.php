@@ -4,25 +4,24 @@ declare(strict_types=1);
 
 namespace spec\App\Domain;
 
-use App\Domain\Quest;
 use App\Domain\Exception\IncompleteQuestException;
-use App\Domain\Quest\Experience;
-use App\Domain\Quest\Title;
+use App\Domain\Exception\Quest\TryingToReceiveTwice;
+use App\Domain\Quest;
+use App\Domain\Quest\CompletedAt;
 use App\Domain\Quest\Description;
+use App\Domain\Quest\Experience;
 use App\Domain\Quest\Reward;
+use App\Domain\Quest\StartedAt;
+use App\Domain\Quest\Title;
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 
 class QuestSpec extends ObjectBehavior
 {
     function let(): void
     {
-        $this->beConstructedWith(
-            new Title("Workout") # Title
-            # Description
-            # No Reward by default
-            # Default Medium difficulty
-        );
+        $this->beConstructedThrough("startNewQuest", [
+            new Title('Workout')
+        ]);
     }
 
     function it_is_initializable(): void
@@ -36,13 +35,26 @@ class QuestSpec extends ObjectBehavior
 
         $this->isComplete()
             ->shouldReturn(true);
+
+        $this->completedAt()
+            ->shouldHaveType(CompletedAt::class);
     }
 
     function it_gives_experience(): void
     {
         $this->completeTheQuest();
 
-        $experience = $this->receiveExperience()->getExperience()->shouldReturn(50);
+        $this->receiveExperience();
+    }
+
+    function it_throws_exception_while_trying_to_receive_experience_twice(): void
+    {
+        $this->completeTheQuest();
+
+        $this->receiveExperience();
+
+        $this->shouldThrow(TryingToReceiveTwice::experience())
+            ->during("receiveExperience");
     }
 
     function it_may_have_a_description(): void
@@ -67,13 +79,14 @@ class QuestSpec extends ObjectBehavior
 
         $this->addReward($reward);
 
-        $this->rewards($reward)
-            ->shouldReturn([$reward]);
+        $this->rewards()
+            ->shouldHaveKey('A cookie');
     }
 
     function it_may_have_updated_title(): void
     {
         $this->updateTitle(new Title("Homework"));
+
     }
 
     function it_gives_a_reward_for_completing_it(): void
@@ -83,8 +96,27 @@ class QuestSpec extends ObjectBehavior
 
         $this->completeTheQuest();
 
-        $this->receiveRewards()
-            ->shouldReturn([$reward]);
+        $this->receiveRewards();
+
+        $this->rewards()
+            ->shouldHaveKey('none');
+
+        $this->rewards()
+            ->shouldHaveCount(1);
+    }
+
+    function it_has_information_when_the_quest_has_started(): void
+    {
+        $this->startedAt()
+            ->shouldBeAnInstanceOf(StartedAt::class);
+    }
+
+    function it_has_information_when_the_quest_has_been_completed(): void
+    {
+        $this->completeTheQuest();
+
+        $this->completedAt()
+            ->shouldBeAnInstanceOf(CompletedAt::class);
     }
 
     function it_has_a_medium_difficulty_by_default(): void

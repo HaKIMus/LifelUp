@@ -20,8 +20,15 @@ class Reward
         return $reward;
     }
 
+    public function toArray(): array
+    {
+        return [
+            'reward' => $this->reward
+        ];
+    }
+
     public function getReward(): ?string
     {
-        return $this->reward;
+        return $this->reward ?? 'none';
     }
 }
