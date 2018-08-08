@@ -271,6 +271,14 @@ class Quest extends AggregateRoot
         }
     }
 
+    /**
+     * DELETE
+     */
+    public function id(): Uuid
+    {
+        return $this->uuid;
+    }
+
     protected function aggregateId(): string
     {
         return $this->uuid->toString();

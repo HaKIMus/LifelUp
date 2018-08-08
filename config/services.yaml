@@ -28,3 +28,6 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    App\Application\Handler\StartNewQuestHandler:
+        tags:
+        - { name: 'prooph_service_bus.app_command_bus.plugin.route_target', message_detection: true }

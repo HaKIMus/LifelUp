@@ -4,6 +4,7 @@ namespace spec\App\Application\Handler;
 
 use App\Application\Command\StartNewQuestCommand;
 use App\Application\Handler\StartNewQuestHandler;
+use App\Infrastructure\ES\Repository\EventStoreQuestCollection;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
@@ -16,6 +17,7 @@ class StartNewQuestHandlerSpec extends ObjectBehavior
 
     function it_handles_starting_a_new_quest(): void
     {
+        $this->beConstructedWith(new EventStoreQuestCollection('', '' ,'', '', '', '', '', ''));
         $command = StartNewQuestCommand::withData(
             'Workout',
             'Do a workout',

@@ -20,7 +20,7 @@ class StartNewQuestCommand extends Command implements PayloadConstructable
     public static function withData(
         string $title,
         string $description,
-        string $difficulty,
+        int $difficulty,
         array $rewards
     ): self {
         return new self([

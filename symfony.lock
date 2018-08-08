@@ -2,6 +2,12 @@
     "beberlei/assert": {
         "version": "v2.9.6"
     },
+    "composer/semver": {
+        "version": "1.x-dev"
+    },
+    "composer/xdebug-handler": {
+        "version": "1.1.0"
+    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
@@ -80,8 +86,14 @@
     "doctrine/reflection": {
         "version": "1.0.x-dev"
     },
-    "http-interop/http-factory": {
-        "version": "0.3.0"
+    "friendsofphp/php-cs-fixer": {
+        "version": "2.2",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "2.2",
+            "ref": "81dee417d2cc60cd1c9d6208dff2ec22a1103e93"
+        }
     },
     "jdorn/sql-formatter": {
         "version": "1.3.x-dev"
@@ -103,6 +115,9 @@
     },
     "paragonie/random_compat": {
         "version": "v9.99.99"
+    },
+    "php-cs-fixer/diff": {
+        "version": "v1.3.0"
     },
     "phpdocumentor/reflection-common": {
         "version": "1.0.1"
@@ -135,19 +150,22 @@
         "version": "v3.3.0"
     },
     "prooph/event-store-http-middleware": {
-        "version": "dev-master"
+        "version": "v0.2.0"
     },
     "prooph/event-store-symfony-bundle": {
-        "version": "1.0-dev"
+        "version": "v0.4"
     },
     "prooph/pdo-event-store": {
         "version": "v1.9.0"
+    },
+    "prooph/php-cs-fixer-config": {
+        "version": "v0.2.2"
     },
     "prooph/service-bus": {
         "version": "v6.2.2"
     },
     "prooph/service-bus-symfony-bundle": {
-        "version": "1.0-dev"
+        "version": "v0.6.0"
     },
     "psr/cache": {
         "version": "1.0.x-dev"
@@ -295,6 +313,9 @@
             "version": "3.1",
             "ref": "51b7a31438c8aeeda7931a0ece98a945c91e7f20"
         }
+    },
+    "symfony/options-resolver": {
+        "version": "4.2-dev"
     },
     "symfony/orm-pack": {
         "version": "dev-master"
